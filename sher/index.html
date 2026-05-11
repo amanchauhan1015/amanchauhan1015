@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>I'm Sorry ❤️</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #ff758c, #ff7eb3);
+            text-align: center;
+            color: white;
+            overflow: hidden;
+        }
+        
+        .container {
+            margin-top: 100px;
+            padding: 20px;
+        }
+        
+        h1 {
+            font-size: 3rem;
+        }
+        
+        p {
+            font-size: 1.3rem;
+            max-width: 600px;
+            margin: 20px auto;
+            line-height: 1.6;
+        }
+        
+        button {
+            padding: 12px 25px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 30px;
+            background: white;
+            color: #ff4d6d;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        
+        button:hover {
+            transform: scale(1.1);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        /* floating hearts */
+        
+        .heart {
+            position: absolute;
+            color: white;
+            font-size: 20px;
+            animation: float 5s linear infinite;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(-100vh);
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>I'm Sorry, My Love ❤️</h1>
+
+        <p>
+            I know I hurt you… and I hate that I did. You are the most important person in my life, and I never want to lose you.
+        </p>
+
+        <button onclick="showMessage()">Please click once ❤️</button>
+
+        <p id="extra" class="hidden">
+            I promise I’ll improve, understand you better, and never repeat my mistakes. Please forgive me 🥺💖
+        </p>
+    </div>
+
+    <script>
+        function showMessage() {
+            document.getElementById("extra").classList.remove("hidden");
+        }
+
+        /* floating hearts */
+        setInterval(() => {
+            let heart = document.createElement("div");
+            heart.innerHTML = "❤️";
+            heart.className = "heart";
+            heart.style.left = Math.random() * 100 + "vw";
+            heart.style.fontSize = (Math.random() * 20 + 10) + "px";
+            document.body.appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, 5000);
+        }, 300);
+    </script>
+
+</body>
+
+</html>

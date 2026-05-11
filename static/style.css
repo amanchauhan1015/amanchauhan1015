@@ -1,0 +1,61 @@
+body {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    min-height: 100vh;
+}
+
+.hover-title {
+    transition: all 0.4s ease;
+    cursor: pointer;
+}
+
+.hover-title:hover {
+    transform: scale(1.1);
+    text-shadow: 0 0 10px white, 0 0 20px #00c6ff, 0 0 30px #0072ff;
+}
+
+.resume-card {
+    border-radius: 15px;
+    transition: 0.3s ease;
+}
+
+.resume-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.skill-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #4e73df, #1cc88a);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    margin: 4px 4px 0 0;
+}
+
+.progress-bar {
+    transition: width 1.5s ease-in-out;
+}
+
+body {
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.dark-mode {
+    background-color: #121212 !important;
+    color: #ffffff !important;
+}
+
+.dark-mode .card {
+    background-color: #1e1e1e;
+    color: white;
+}
+
+.dark-mode .table {
+    color: white;
+}
+
+.dark-mode .list-group-item {
+    background-color: #1e1e1e;
+    color: white;
+}
