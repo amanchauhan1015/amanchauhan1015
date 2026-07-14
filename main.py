@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 # Load BERT Model
 print("Loading BERT model...")
-model = SentenceTransformer('all-MiniLM-L6-v2', cache_folder='models')
+model = SentenceTransformer('all-MiniLM-L6-v2')
 print("BERT model loaded successfully!")
 
 # Database Config
