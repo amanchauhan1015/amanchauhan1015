@@ -25,7 +25,7 @@
                 Resume Details
             </h2>
 
-            <div class="row">
+            <div class="row g-3">
 
                 <div class="col-md-6">
 
@@ -45,42 +45,39 @@
 
             </div>
 
-            <div class="row mt-3">
-
-            </div>
+           
 
             <div class="row mt-4">
 
-                <div class="col-md-6">
+                <div class="col-12 col-md-6 mb-3">
 
                     <h5>Match Score</h5>
 
                     <div class="progress">
-
-                        <div class="progress-bar bg-success" style="width: {{ data.match_score }}%;">
-
-                            {{ data.match_score }}%
-
+                        <div class="progress-bar bg-success"
+                             role="progressbar"
+                             style="width: {{ data.match_score }}%;"
+                             aria-valuenow="{{ data.match_score }}"
+                             aria-valuemin="0"
+                             aria-valuemax="100">
+                            {{ "%.2f"|format(data.match_score) }}%</div>
                         </div>
 
-                    </div>
-
                 </div>
-
-                <div class="col-md-6">
+                
+                <div class="col-12 col-md-6 mb-3">
 
                     <h5>ATS Score</h5>
 
                     <div class="progress">
-
-                        <div class="progress-bar bg-primary" style="width: {{ data.ats_score }}%;">
-
-                            {{ data.ats_score }}%
-
+                        <div class="progress-bar bg-primary"
+                             role="progressbar"
+                             style="width: {{ (data.ats_score|float)|round(2) }}%;"
+                             aria-valuenow="{{ (data.ats_score|float)|round(2) }}"
+                             aria-valuemin="0"
+                             aria-valuemax="100">
+                            {{ "%.2f"|format(data.ats_score) }}%
                         </div>
-
-                    </div>
-
                 </div>
 
             </div>
@@ -126,9 +123,7 @@
                 <h5>Resume Summary</h5>
 
                 <div class="summary">
-
-                    {{ data.resume_summary }}
-
+                    <pre>{{ data.resume_summary }}</pre>
                 </div>
 
             </div>
