@@ -4,6 +4,22 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
+from dotenv import load_dotenv
+import os
+from google import genai
+
+load_dotenv()
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+client = genai.Client(api_key=GEMINI_API_KEY)
+
+
+try:
+    import time
+    for model in client.models.list():
+        print(model.name)
+except Exception as e:
+    print("Error listing models:", e)
 
 app = Flask(__name__)
 
@@ -11,6 +27,87 @@ app = Flask(__name__)
 print("Loading BERT model...")
 model = SentenceTransformer('all-MiniLM-L6-v2')
 print("BERT model loaded successfully!")
+
+RECRUITER_QUESTIONS = [
+    "What is the candidate's highest qualification?",
+    "Does the candidate have internship experience?",
+    "Which companies has the candidate worked for?",
+    "What programming languages does the candidate know?",
+    "What technical skills does the candidate have?",
+    "What projects has the candidate completed?",
+    "What certifications does the candidate have?",
+    "Does the candidate have cloud knowledge?",
+    "Does the candidate have AI/ML experience?",
+    "Is the candidate suitable for this job?"
+]
+def answer_recruiter_questions(resume_text):
+
+    import json
+    import time
+
+    prompt = f"""
+You are an expert HR recruiter.
+
+Analyze the following resume and answer ONLY in JSON.
+
+Resume:
+{resume_text}
+
+Return JSON exactly like this:
+
+{{
+    "Highest Qualification":"",
+    "Years of Experience":"",
+    "Technical Skills":"",
+    "Projects":"",
+    "Internship":"",
+    "Certifications":"",
+    "Strengths":"",
+    "Weaknesses":"",
+    "Recommended Role":"",
+    "Overall Recommendation":""
+}}
+"""
+
+    for attempt in range(3):
+
+        try:
+
+            response = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=prompt
+            )
+
+            text = response.text.strip()
+
+            if text.startswith("```json"):
+                text = text.replace("```json", "").replace("```", "").strip()
+
+            elif text.startswith("```"):
+                text = text.replace("```", "").strip()
+
+            return json.loads(text)
+
+        except Exception as e:
+
+            print("Gemini Error:", e)
+
+            if attempt == 2:
+                return {
+                    "Highest Qualification":"Unavailable",
+                    "Years of Experience":"Unavailable",
+                    "Technical Skills":"Unavailable",
+                    "Projects":"Unavailable",
+                    "Internship":"Unavailable",
+                    "Certifications":"Unavailable",
+                    "Strengths":"Unavailable",
+                    "Weaknesses":"Unavailable",
+                    "Recommended Role":"Unavailable",
+                    "Overall Recommendation":"Gemini API Busy"
+                }
+
+            time.sleep(3)
+
 
 # Database Config
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///results.db'
@@ -33,6 +130,9 @@ class ResumeResult(db.Model):
 
     resume_summary = db.Column(db.Text)
     recommendation = db.Column(db.String(50))
+    resume_text = db.Column(db.Text)
+
+    
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -91,6 +191,7 @@ def extract_text_from_pdf(file):
 def index():
 
     results = []
+    all_qa_answers = []
 
     if request.method == "POST":
 
@@ -114,9 +215,11 @@ def index():
         # Batch BERT Encoding
         resume_embeddings = model.encode(resume_texts)
         jd_embedding = model.encode(job_description)
+        all_qa_answers = []
 
         # Process each resume
         for i, resume_embedding in enumerate(resume_embeddings):
+            
 
             similarity = cosine_similarity(
                 [resume_embedding],
@@ -148,6 +251,12 @@ def index():
                 missing_skills
                 
             ))
+
+            qa_answers = answer_recruiter_questions(resume_texts[i])
+            print(qa_answers)
+            all_qa_answers.append(qa_answers)
+            
+            
             resume_result = ResumeResult(
                 candidate_name=file_names[i].replace(".pdf", ""),
                 filename=file_names[i],
@@ -159,6 +268,7 @@ def index():
                 missing_skills=", ".join(missing_skills),
 
                 resume_summary=resume_texts[i][:500],
+                resume_text=resume_texts[i],
 
                 recommendation="Selected" if score >= 75 else "Rejected"
             )
@@ -171,7 +281,11 @@ def index():
         db.session.commit()
         print("Database committed successfully")
 
-    return render_template("index.html", results=results)
+    return render_template(
+    "index.html",
+    results=results,
+    all_qa_answers=all_qa_answers
+)
 
 
 import os
@@ -227,9 +341,14 @@ def view(id):
 
     data = ResumeResult.query.get_or_404(id)
 
+    print(data.resume_text)  # <-- Add this
+    qa_answers = answer_recruiter_questions(data.resume_text)
+    print(qa_answers)        # <-- Add this
+
     return render_template(
         "view.html",
-        data=data
+        data=data,
+        qa_answers=qa_answers
     )
 
 if __name__ == "__main__":
